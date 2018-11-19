@@ -57,7 +57,7 @@ class IndexResource(Resource):
         deserialize to correct PynamoDB attribute type.
         """
         value = kwargs.pop(self.hash_keyname)
-        attr = self.index._get_attributes()[self.hash_keyname]
+        attr = self.index.get_attributes()[self.hash_keyname]
         return attr.deserialize(value)
 
     def _get_range(self, kwargs):
@@ -66,7 +66,7 @@ class IndexResource(Resource):
         deserialize to correct PynamoDB attribute type.
         """
         value = kwargs.pop(self.range_keyname)
-        attr = self.index._get_attributes()[self.range_keyname]
+        attr = self.index.get_attributes()[self.range_keyname]
         return {self.range_keyname + '__eq': attr.deserialize(value)}
 
 
@@ -231,7 +231,7 @@ def modelresource_factory(model):
     cls = type('{0}Resource'.format(model.__name__), (ModelResource,), {})
 
     cls.model = model
-    for name, attr in model._get_attributes().items():
+    for name, attr in model.get_attributes().items():
         if attr.is_hash_key:
             cls.hash_keyname = name
         elif attr.is_range_key:
@@ -250,7 +250,7 @@ def indexresource_factory(index, name=None):
     cls.index = index
     if name:
         cls.name = name
-    for name, attr in index._get_attributes().items():
+    for name, attr in index.get_attributes().items():
         if attr.is_hash_key:
             cls.hash_keyname = name
         elif attr.is_range_key:
