@@ -2,8 +2,8 @@ import logging
 from ujson import dumps
 
 from flask import request
-from flask_restful import Api, Resource
-from flask_restful.representations import json as restful_json
+from flask_restplus import Api, Resource
+from flask_restplus.representations import json as restful_json
 from pynamodb.attributes import Attribute
 from pynamodb.indexes import Index
 from pynamodb.models import Model
@@ -27,16 +27,19 @@ class IndexResource(Resource):
     @classmethod
     def build_routes(cls):
         if not cls.route_prefix:
-            cls.route_prefix = '/{0}'.format(cls.index.Meta.model.Meta.table_name)
+            cls.route_prefix = '/{0}'.format(
+                cls.index.Meta.model.Meta.table_name)
 
         if not cls.name:
             cls.name = cls.index.Meta.index_name
 
         resource_routes = []
 
-        resource_routes.append('{0}/{1}/<{2}>'.format(cls.route_prefix, cls.name, cls.hash_keyname))
+        resource_routes.append(
+            '{0}/{1}/<{2}>'.format(cls.route_prefix, cls.name, cls.hash_keyname))
         if cls.range_keyname:
-            resource_routes.append('{0}/{1}/<{2}>/<{3}>'.format(cls.route_prefix, cls.name, cls.hash_keyname, cls.range_keyname))
+            resource_routes.append(
+                '{0}/{1}/<{2}>/<{3}>'.format(cls.route_prefix, cls.name, cls.hash_keyname, cls.range_keyname))
 
         return resource_routes
 
@@ -67,7 +70,7 @@ class IndexResource(Resource):
         """
         value = kwargs.pop(self.range_keyname)
         attr = self.index._get_attributes()[self.range_keyname]
-        return {self.range_keyname+'__eq': attr.deserialize(value)}
+        return {self.range_keyname + '__eq': attr.deserialize(value)}
 
 
 class ModelResource(Resource):
@@ -106,10 +109,12 @@ class ModelResource(Resource):
 
         resource_routes = []
         resource_routes.append(cls.route_prefix)
-        resource_routes.append('{0}/<{1}>'.format(cls.route_prefix, cls.hash_keyname))
+        resource_routes.append(
+            '{0}/<{1}>'.format(cls.route_prefix, cls.hash_keyname))
 
         if cls.range_keyname:
-            resource_routes.append('{0}/<{1}>/<{2}>'.format(cls.route_prefix, cls.hash_keyname, cls.range_keyname))
+            resource_routes.append(
+                '{0}/<{1}>/<{2}>'.format(cls.route_prefix, cls.hash_keyname, cls.range_keyname))
 
         return resource_routes
 
@@ -242,7 +247,8 @@ def indexresource_factory(index, name=None):
     """
     Create a resource class for the given index.
     """
-    cls = type('{0}Resource'.format(index.__class__.__name__), (IndexResource,), {})
+    cls = type('{0}Resource'.format(
+        index.__class__.__name__), (IndexResource,), {})
 
     cls.index = index
     if name:
@@ -260,7 +266,8 @@ def _to_dict(self):
     ret = dict()
     for k, v in self.attribute_values.items():
         if isinstance(v, dict):
-            ret[k] = dict([(sk, sv.to_dict() if isinstance(sv, Attribute) else sv) for sk, sv in v.items()])
+            ret[k] = dict([(sk, sv.to_dict() if isinstance(
+                sv, Attribute) else sv) for sk, sv in v.items()])
         if isinstance(v, list):
             ret[k] = [l.to_dict() if isinstance(l, Attribute) else l for l in v]
         elif isinstance(v, Attribute):
