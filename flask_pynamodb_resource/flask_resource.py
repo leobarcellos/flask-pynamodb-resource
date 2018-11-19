@@ -1,9 +1,7 @@
 import logging
-from ujson import dumps
 
 from flask import request
 from flask_restplus import Api, Resource
-from flask_restplus.representations import json as restful_json
 from pynamodb.attributes import Attribute
 from pynamodb.indexes import Index
 from pynamodb.models import Model
@@ -12,7 +10,6 @@ from pynamodb.exceptions import PutError
 from six import string_types
 
 logger = logging.getLogger(__name__)
-restful_json.dumps = dumps
 
 
 class IndexResource(Resource):
